@@ -10,7 +10,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
-  dotnetSdkVersion: '6.x'
+  dotnetSdkVersion: '8.0.x'
   artifactZip: '$(build.artifactStagingDirectory)/WebApp.zip'
 
 stages:
