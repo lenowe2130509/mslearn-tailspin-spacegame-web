@@ -49,6 +49,15 @@ stages:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
+    # Installer les dépendances Node
+    - script: npm install
+      displayName: 'Install Node dependencies'
+
+    # Compiler Sass
+    - script: npx node-sass $(wwwrootDir) --output $(wwwrootDir)
+      displayName: 'Compile Sass assets'
+
+
     # Compiler les fichiers Sass
     - script: 'node_modules\.bin\node-sass.cmd $(wwwrootDir) --output $(wwwrootDir)'
       displayName: 'Compile Sass assets'
