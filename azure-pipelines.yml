@@ -1,8 +1,4 @@
-# ASP.NET Core (.NET Framework)
-# Build and test ASP.NET Core projects targeting the full .NET Framework.
-# Add steps that publish symbols, save build artifacts, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
+# ASP.NET Core (.NET Framework) - Pipeline complet avec publication
 trigger:
 - main
 
@@ -13,6 +9,9 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
+  wwwrootDir: 'Tailspin.SpaceGame.Web/wwwroot'
+  dotnetSdkVersion: '6.x'
+  artifactZip: '$(build.artifactStagingDirectory)/WebApp.zip'
 
 stages:
 - stage: Build
@@ -21,21 +20,44 @@ stages:
   - job: BuildJob
     displayName: 'Build Job'
     steps:
+
+    # Installer le SDK .NET
+    - task: UseDotNet@2
+      inputs:
+        packageType: 'sdk'
+        version: '$(dotnetSdkVersion)'
+
+    # Installer NuGet
     - task: NuGetToolInstaller@1
 
+    # Restaurer les packages NuGet
     - task: NuGetCommand@2
       inputs:
         restoreSolution: '$(solution)'
 
+    # Build de l'application et génération du .zip
     - task: VSBuild@1
       inputs:
         solution: '$(solution)'
-        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(build.artifactStagingDirectory)\WebApp.zip" /p:DeployIisAppPath="Default Web Site"'
+        msbuildArgs: '/p:DeployOnBuild=true /p:WebPublishMethod=Package /p:PackageAsSingleFile=true /p:SkipInvalidConfigurations=true /p:DesktopBuildPackageLocation="$(artifactZip)" /p:DeployIisAppPath="Default Web Site"'
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
+    # Exécution des tests
     - task: VSTest@2
       inputs:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
+    # Compiler les fichiers Sass
+    - script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
+      displayName: 'Compile Sass assets'
+
+    # Publier le fichier .zip comme artefact
+    - task: PublishBuildArtifacts@1
+      displayName: 'Publish Build Artifact'
+      inputs:
+        pathToPublish: '$(artifactZip)'
+        artifactName: 'drop'
+        publishLocation: 'Container'
+        condition: succeeded()
