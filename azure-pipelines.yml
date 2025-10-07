@@ -50,7 +50,7 @@ stages:
         configuration: '$(buildConfiguration)'
 
     # Compiler les fichiers Sass
-    - script: './node_modules/.bin/node-sass $(wwwrootDir) --output $(wwwrootDir)'
+    - script: 'node_modules\.bin\node-sass.cmd $(wwwrootDir) --output $(wwwrootDir)'
       displayName: 'Compile Sass assets'
 
     # Publier le fichier .zip comme artefact
