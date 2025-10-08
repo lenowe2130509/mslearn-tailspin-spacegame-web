@@ -49,6 +49,11 @@ stages:
         platform: '$(buildPlatform)'
         configuration: '$(buildConfiguration)'
 
+    - task: NodeTool@0
+      inputs:
+        versionSpec: '18.x'  # ou 20.x selon ton projet
+        displayName: 'Install Node.js'
+
     # Installer les dépendances Node
     - script: npm install
       displayName: 'Install Node dependencies'
